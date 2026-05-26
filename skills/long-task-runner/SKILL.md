@@ -12,25 +12,37 @@ Do not run long tasks in the foreground. Any command expected to take more than 
 ## Workflow
 
 1. Choose a log directory near the task output, usually under `logs/`.
-2. Create separate stdout and stderr logs with a stable name, such as:
+2. For Python experiments or research scripts, confirm the conda environment before launch.
+3. Create separate stdout and stderr logs with a stable name, such as:
    - `logs/<task>_stdout.log`
    - `logs/<task>_stderr.log`
-3. Start the process in the background.
-4. Immediately tell the user:
+4. Start the process in the background.
+5. Immediately tell the user:
    - PID or job id
    - stdout log path
    - stderr log path
    - command used
+   - conda environment used, if applicable
    - how to view the logs
    - how to stop the process
-5. Monitor with periodic tail/read checks instead of blocking.
-6. Report only actionable issues:
+6. Monitor with periodic tail/read checks instead of blocking.
+7. Report only actionable issues:
    - process exited unexpectedly
    - stderr/network/API/auth/code errors
    - output log stops progressing for a suspiciously long time
    - expected result file is missing or not growing
    - malformed JSONL, parse errors, or missing required fields
-7. Do not treat model prediction mistakes as infrastructure errors.
+8. Do not treat model prediction mistakes as infrastructure errors.
+
+## Conda Environments
+
+Many Python experiments require a project-specific conda environment.
+
+- Infer the conda environment from context when possible: prior commands, project docs, scripts, `.env`, terminal history, or user notes.
+- If the environment cannot be inferred confidently, ask the user which conda environment to use.
+- Do not install, uninstall, or upgrade packages unless the user explicitly permits it.
+- If a missing dependency blocks execution, report the dependency and ask before mutating the environment.
+- Include `conda run -n <env-name>` or conda activation in the actual background command and in the user-facing launch summary.
 
 ## Windows PowerShell Pattern
 
@@ -39,8 +51,9 @@ Use this when `tmux`/`nohup` are unavailable:
 ```powershell
 $out = "logs/task_stdout.log"
 $err = "logs/task_stderr.log"
-$p = Start-Process -FilePath python `
-  -ArgumentList @("script.py", "--arg", "value") `
+$cmd = "conda run -n <env-name> python script.py --arg value"
+$p = Start-Process -FilePath powershell `
+  -ArgumentList @("-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", $cmd) `
   -WorkingDirectory "E:\code" `
   -RedirectStandardOutput $out `
   -RedirectStandardError $err `
@@ -68,7 +81,7 @@ Prefer `tmux` if available and useful for interactive monitoring. Otherwise use 
 
 ```bash
 mkdir -p logs
-nohup python script.py --arg value > logs/task_stdout.log 2> logs/task_stderr.log &
+nohup bash -lc 'conda run -n <env-name> python script.py --arg value' > logs/task_stdout.log 2> logs/task_stderr.log &
 echo $!
 ```
 
