@@ -13,6 +13,8 @@ Do not go silent during commands that may appear stuck. If a command is still ru
 
 Do not go silent during preflight checks for a long task. If you are still inspecting scripts, logs, arguments, environment variables, conda environments, or output naming before launch, say that clearly and state that the long-running command has not started yet.
 
+Do not stay silent after a command has already returned. Once a foreground command or monitored background step finishes, immediately report the result before doing more reasoning or moving to the next step.
+
 ## Workflow
 
 1. Choose a log directory near the task output, usually under `logs/`.
@@ -37,6 +39,7 @@ Do not go silent during preflight checks for a long task. If you are still inspe
    - expected result file is missing or not growing
    - malformed JSONL, parse errors, or missing required fields
 8. Do not treat model prediction mistakes as infrastructure errors.
+9. After any command finishes, promptly tell the user whether it succeeded or failed, how long it took if known, and what the next action is.
 
 ## Progress Updates
 
@@ -48,6 +51,7 @@ When a command takes longer than expected, say what is happening instead of stay
 - For commands with little/no output, mention that silence may be normal but that progress is being checked.
 - For network commands such as `git push`, `git pull`, package downloads, or API calls, say when it appears to be waiting on network response.
 - If a command finishes successfully but there is no output, explicitly say it completed with no output.
+- If a command has returned and more work remains, first report the completed command result, then state the next command or check you are about to run.
 - If a command appears stalled, inspect process state, logs, and output files before declaring it stuck.
 
 Example updates:
@@ -57,6 +61,7 @@ Example updates:
 - "No error so far; I am continuing to monitor the log."
 - "This looks like a network wait, not a code error yet."
 - "The command completed successfully but produced no terminal output."
+- "The push finished successfully in 6 seconds; I am now running the install script."
 
 ## Conda Environments
 
