@@ -15,6 +15,8 @@ Do not go silent during preflight checks for a long task. If you are still inspe
 
 Do not stay silent after a command has already returned. Once a foreground command or monitored background step finishes, immediately report the result before doing more reasoning or moving to the next step.
 
+Prefer command forms that make completion unambiguous. Avoid interactive pagers and prompts, limit noisy output, and print a clear completion marker when a command might otherwise appear finished while the terminal or tool state is still unsettled.
+
 ## Workflow
 
 1. Choose a log directory near the task output, usually under `logs/`.
@@ -41,6 +43,16 @@ Do not stay silent after a command has already returned. Once a foreground comma
 8. Do not treat model prediction mistakes as infrastructure errors.
 9. After any command finishes, promptly tell the user whether it succeeded or failed, how long it took if known, and what the next action is.
 
+## Command Completion
+
+For commands that may hang, enter an interactive mode, produce lots of output, or leave child processes running:
+
+- Prefer non-interactive flags and environment variables, such as `git --no-pager`, `GIT_PAGER=cat`, or `CI=1`.
+- Use a timeout wrapper when available for commands that may hang or wait forever.
+- Redirect large stdout/stderr to log files and inspect only the relevant tail.
+- Add a completion marker when useful, such as `echo "__CODEX_DONE__ exit=$?"`, so it is obvious whether the shell reached the end.
+- If a command appears complete but Codex still seems blocked, check for child processes, pagers, prompts, background watchers, or terminal state sync issues before continuing.
+
 ## Progress Updates
 
 When a command takes longer than expected, say what is happening instead of staying silent.
@@ -52,6 +64,7 @@ When a command takes longer than expected, say what is happening instead of stay
 - For network commands such as `git push`, `git pull`, package downloads, or API calls, say when it appears to be waiting on network response.
 - If a command finishes successfully but there is no output, explicitly say it completed with no output.
 - If a command has returned and more work remains, first report the completed command result, then state the next command or check you are about to run.
+- If the shell reports a short wall time but the user experiences a long wait afterward, acknowledge that the command already finished and treat the delay as Codex/tool/UI follow-up latency, not as command runtime.
 - If a command appears stalled, inspect process state, logs, and output files before declaring it stuck.
 
 Example updates:
