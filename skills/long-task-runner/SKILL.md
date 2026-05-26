@@ -11,6 +11,8 @@ Do not run long tasks in the foreground. Any command expected to take more than 
 
 Do not go silent during commands that may appear stuck. If a command is still running, has no output, or is waiting on network/SSH/API response longer than expected, provide a brief status update and keep monitoring.
 
+Do not go silent during preflight checks for a long task. If you are still inspecting scripts, logs, arguments, environment variables, conda environments, or output naming before launch, say that clearly and state that the long-running command has not started yet.
+
 ## Workflow
 
 1. Choose a log directory near the task output, usually under `logs/`.
@@ -40,6 +42,7 @@ Do not go silent during commands that may appear stuck. If a command is still ru
 
 When a command takes longer than expected, say what is happening instead of staying silent.
 
+- During preflight, tell the user what is being checked and whether the long task has started. This includes reading scripts, checking `.env`, finding conda environments, choosing log paths, or inspecting prior outputs.
 - For foreground commands, if the tool call returns no output for a while, send a short update after it returns and explain whether it completed, failed, or was interrupted.
 - For background commands, check the process and log files periodically.
 - For commands with little/no output, mention that silence may be normal but that progress is being checked.
@@ -49,6 +52,7 @@ When a command takes longer than expected, say what is happening instead of stay
 
 Example updates:
 
+- "I am still checking the script arguments and log naming; the experiment has not started yet."
 - "The command is still running; I am waiting for output."
 - "No error so far; I am continuing to monitor the log."
 - "This looks like a network wait, not a code error yet."
