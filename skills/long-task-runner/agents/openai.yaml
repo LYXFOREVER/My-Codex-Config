@@ -1,0 +1,4 @@
+interface:
+  display_name: "Long Task Runner"
+  short_description: "Run long commands in background with logs and progress checks."
+  default_prompt: "Use this skill when a command may take more than one minute or needs monitored execution."
