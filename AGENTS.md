@@ -4,6 +4,8 @@
 
 Any command expected to take more than one minute must be run in the background with stdout and stderr redirected to log files.
 
+When running commands, do not let the user wonder whether Codex is stuck. For any command that may take time, has little/no terminal output, waits on the network, or blocks longer than expected, provide periodic status updates such as "the command is still running; waiting for output" or "no error so far; continuing to monitor." If possible, check process/log/file progress before each update.
+
 After starting a long task, report:
 
 - PID or job id

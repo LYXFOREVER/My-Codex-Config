@@ -1,6 +1,6 @@
 ---
 name: long-task-runner
-description: Run and monitor long-running commands safely. Use when a command may take more than one minute, calls external networks/APIs, trains/evaluates models, compiles large projects, runs long tests, starts servers, or otherwise risks making Codex appear stuck.
+description: Run and monitor shell commands safely with visible progress updates. Use before executing commands that may take more than one minute, produce little/no output, wait on network/API/git/SSH operations, train/evaluate models, compile large projects, run long tests, start servers, or otherwise risk making Codex appear stuck.
 ---
 
 # Long Task Runner
@@ -8,6 +8,8 @@ description: Run and monitor long-running commands safely. Use when a command ma
 ## Core Rule
 
 Do not run long tasks in the foreground. Any command expected to take more than one minute must run in the background with stdout and stderr redirected to log files.
+
+Do not go silent during commands that may appear stuck. If a command is still running, has no output, or is waiting on network/SSH/API response longer than expected, provide a brief status update and keep monitoring.
 
 ## Workflow
 
@@ -33,6 +35,24 @@ Do not run long tasks in the foreground. Any command expected to take more than 
    - expected result file is missing or not growing
    - malformed JSONL, parse errors, or missing required fields
 8. Do not treat model prediction mistakes as infrastructure errors.
+
+## Progress Updates
+
+When a command takes longer than expected, say what is happening instead of staying silent.
+
+- For foreground commands, if the tool call returns no output for a while, send a short update after it returns and explain whether it completed, failed, or was interrupted.
+- For background commands, check the process and log files periodically.
+- For commands with little/no output, mention that silence may be normal but that progress is being checked.
+- For network commands such as `git push`, `git pull`, package downloads, or API calls, say when it appears to be waiting on network response.
+- If a command finishes successfully but there is no output, explicitly say it completed with no output.
+- If a command appears stalled, inspect process state, logs, and output files before declaring it stuck.
+
+Example updates:
+
+- "The command is still running; I am waiting for output."
+- "No error so far; I am continuing to monitor the log."
+- "This looks like a network wait, not a code error yet."
+- "The command completed successfully but produced no terminal output."
 
 ## Conda Environments
 
